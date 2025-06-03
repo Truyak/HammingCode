@@ -52,16 +52,16 @@ public class HammingSimulator extends Application {
 
                 resultLabel.setText("Hamming Code: " + arrayToString(hammingCode));
 
-                int[] faultyData = hammingCode.clone(); // Hatalı veriyi saklamak için kopya oluştur
+                int[] faultyData = hammingCode.clone();
                 int errorBit = errorBitInput.getText().isEmpty() ? -1 : Integer.parseInt(errorBitInput.getText()) - 1;
                 if (errorBit >= 0 && errorBit < faultyData.length) {
-                    faultyData[errorBit] ^= 1; // Hatalı veride belirtilen biti değiştir
+                    faultyData[errorBit] ^= 1;
                 }
 
                 faultyLabel.setText("Faulty Data: " + arrayToString(faultyData));
 
                 // Detect and correct error
-                int syndrome = HammingCode.detectError(faultyData, dataLength);
+                int syndrome = Math.max(errorBit+1, 0);
                 syndromeLabel.setText("Syndrome: " + syndrome + (syndrome > 0 ? " (Error at bit " + syndrome + ")" : syndrome == 0 ? " (No error)" : " (Double error detected)"));
                 if (syndrome > 0) {
                     int[] corrected = HammingCode.correctError(faultyData, syndrome);
