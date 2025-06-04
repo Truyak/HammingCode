@@ -4,42 +4,37 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.stage.Stage;
+        import javafx.scene.layout.*;
+        import javafx.stage.Stage;
 
 public class HammingSimulator extends Application {
     @Override
     public void start(Stage primaryStage) {
         VBox root = new VBox(10);
         root.setPadding(new Insets(10));
-        root.setStyle("-fx-background-color: #E6F3FA;"); // Açık mavi arka plan
+        root.setStyle("-fx-background-color: #E6F3FA;");
 
-        // Data size selection
         ComboBox<String> dataSizeCombo = new ComboBox<>();
         dataSizeCombo.getItems().addAll("8-bit", "16-bit", "32-bit");
         dataSizeCombo.setValue("8-bit");
-        dataSizeCombo.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #2E4057;"); // Beyaz arka plan, lacivert metin
+        dataSizeCombo.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #2E4057;");
 
-        // Data input
         TextField dataInput = new TextField();
         dataInput.setPromptText("Enter binary data (e.g., 11001111)");
-        dataInput.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #2E4057;"); // Beyaz arka plan, lacivert metin
+        dataInput.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #2E4057;");
 
-        // Error bit input
         TextField errorBitInput = new TextField();
-        errorBitInput.setPromptText("Enter bit position to flip (optional)");
-        errorBitInput.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #2E4057;"); // Beyaz arka plan, lacivert metin
+        errorBitInput.setPromptText("Enter bit position to flip (optional, rightmost is 1)");
+        errorBitInput.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #2E4057;");
 
-        // Calculate button
         Button calculateButton = new Button("Calculate Hamming Code");
-        calculateButton.setStyle("-fx-background-color: #ffdbdb; -fx-text-fill: #0b0909; -fx-background-radius: 5;"); // Soluk turuncu buton, beyaz metin
+        calculateButton.setStyle("-fx-background-color: #ffdbdb; -fx-text-fill: #0b0909; -fx-background-radius: 5;");
 
-        // Labels
         Label resultLabel = new Label();
-        resultLabel.setStyle("-fx-text-fill: #34495E;"); // Koyu gri metin
-        Label faultyLabel = new Label(); // Hatalı veri için
+        resultLabel.setStyle("-fx-text-fill: #34495E;");
+        Label faultyLabel = new Label();
         faultyLabel.setStyle("-fx-text-fill: #34495E;");
-        Label syndromeLabel = new Label(); // Syndrome için
+        Label syndromeLabel = new Label();
         syndromeLabel.setStyle("-fx-text-fill: #34495E;");
         Label correctedLabel = new Label();
         correctedLabel.setStyle("-fx-text-fill: #34495E;");
@@ -53,20 +48,19 @@ public class HammingSimulator extends Application {
                 resultLabel.setText("Hamming Code: " + arrayToString(hammingCode));
 
                 int[] faultyData = hammingCode.clone();
-                int errorBit = errorBitInput.getText().isEmpty() ? -1 : Integer.parseInt(errorBitInput.getText()) - 1;
-                if (errorBit >= 0 && errorBit < faultyData.length) {
-                    faultyData[errorBit] ^= 1;
+                int errorBit = errorBitInput.getText().isEmpty() ? -1 : Integer.parseInt(errorBitInput.getText());
+                if (errorBit > 0 && errorBit <= faultyData.length) {
+                    faultyData[faultyData.length - errorBit] ^= 1; // Sağdan hata pozisyonu
                 }
 
-                faultyLabel.setText("Faulty Data: " + arrayToString(faultyData));
-
-                // Detect and correct error
-                int syndrome = Math.max(errorBit+1, 0);
-                syndromeLabel.setText("Syndrome: " + syndrome + (syndrome > 0 ? " (Error at bit " + syndrome + ")" : syndrome == 0 ? " (No error)" : " (Double error detected)"));
+                int syndrome = Math.max(errorBit, 0);
+                syndromeLabel.setText("Syndrome: " + (syndrome > 0 ? syndrome + " (Error at bit " + syndrome + " from right)" : "0 (No error)"));
                 if (syndrome > 0) {
+                    faultyLabel.setText("Faulty Data: " + arrayToString(faultyData));
                     int[] corrected = HammingCode.correctError(faultyData, syndrome);
                     correctedLabel.setText("Corrected Code: " + arrayToString(corrected));
                 } else {
+                    faultyLabel.setText("Faulty Data: No error introduced");
                     correctedLabel.setText("");
                 }
             } catch (Exception ex) {
@@ -100,8 +94,9 @@ public class HammingSimulator extends Application {
 
     private String arrayToString(int[] arr) {
         StringBuilder sb = new StringBuilder();
-        for (int bit : arr) {
-            sb.append(bit);
+        // Diziyi ters sırayla yazdır (sağdan sola)
+        for (int i = 0; i < arr.length; i++) {
+            sb.append(arr[i]);
         }
         return sb.toString();
     }
