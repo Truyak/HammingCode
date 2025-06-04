@@ -20,7 +20,7 @@
 ## Örnek
 - **Giriş Verisi:** `10011111` (8 bit)  
 - **Hata Pozisyonu:** `9`  
-- **Hamming Kodu:** `001000101111`  
-- **Hatalı Veri:** `001000011111`  
+- **Hamming Kodu:** `111101000100`  
+- **Hatalı Veri:** ` 111001000100`  
 - **Sendrom:** `9 (Error at bit 9)`  
-- **Düzeltilmiş Kod:** `001000101111`
+- **Düzeltilmiş Kod:** `111101000100`
